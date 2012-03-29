@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
 using System.Windows;
 using Newtonsoft.Json;
 
@@ -16,17 +15,26 @@ namespace WpfApplication1
             InitializeComponent();
         }
 
-        private void GetArtists(object sender, RoutedEventArgs e)
+        private async void GetArtists(object sender, RoutedEventArgs e)
         {
-            var wc = new WebClient();
-            var address = new Uri("http://ws.audioscrobbler.com/2.0/?method=chart.gethypedartists&api_key=b25b959554ed76058ac220b7b2e0a026&format=json");
-            var result = wc.DownloadString(address);
+            getArtists.IsEnabled = false;
 
-            var wrapper = JsonConvert.DeserializeObject<Wrapper>(result);
-
-            foreach (var artist in wrapper.Artists.artist)
+            try
             {
-                Artists.Add(artist);
+                var wc = new AsyncWebClient();
+                var address = new Uri("http://ws.audioscrobbler.com/2.0/?method=chart.gethypedartists&api_key=b25b959554ed76058ac220b7b2e0a026&format=json");
+                var result = await wc.GetStringAsync(address);
+
+                var wrapper = JsonConvert.DeserializeObject<Wrapper>(result);
+
+                foreach (var artist in wrapper.Artists.artist)
+                {
+                    Artists.Add(artist);
+                }
+            }
+            finally
+            {
+                getArtists.IsEnabled = true;                
             }
         }
 

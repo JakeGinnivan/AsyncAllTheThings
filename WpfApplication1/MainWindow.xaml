@@ -11,7 +11,8 @@
         </Grid.RowDefinitions>
 
         <Button Click="GetArtists"
-                Content="Get Artists" />
+                Content="Get Artists"
+                x:Name="getArtists"/>
 
         <ListView ItemsSource="{Binding Artists}"
                   BorderThickness="0"
