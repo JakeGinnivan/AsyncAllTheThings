@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace MvcApplication1.Controllers
@@ -14,9 +15,9 @@ namespace MvcApplication1.Controllers
         }
 
         public ActionResult Index()
-         {
-             return View();
-         }
+        {
+            return View();
+        }
 
         public ActionResult SendEmail()
         {
@@ -26,12 +27,21 @@ namespace MvcApplication1.Controllers
 
             return Content(Guid.NewGuid().ToString());
         }
+
+        public Task<ActionResult> SendEmailAsync()
+        {
+            return userService
+                .GetCurrentUserAsync()
+                .ContinueWith(task => userService.SendEmail(task.Result))
+                .ContinueWith<ActionResult>(task => Content(Guid.NewGuid().ToString()));
+        }
     }
 
     public interface IUserService
     {
         User GetCurrentUser();
         void SendEmail(User user);
+        Task<User> GetCurrentUserAsync();
     }
 
     class UserService : IUserService
@@ -49,6 +59,12 @@ namespace MvcApplication1.Controllers
             return userRepository.GetUser(currentUserId);
         }
 
+        public Task<User> GetCurrentUserAsync()
+        {
+            const int currentUserId = 10;
+            return userRepository.GetUserAsync(currentUserId);
+        }
+
         public void SendEmail(User user)
         {
             Thread.Sleep(200);
@@ -58,6 +74,7 @@ namespace MvcApplication1.Controllers
     internal interface IUserRepository
     {
         User GetUser(int currentUserId);
+        Task<User> GetUserAsync(int currentUserId);
     }
 
     class UserRepository : IUserRepository
@@ -67,11 +84,22 @@ namespace MvcApplication1.Controllers
             Thread.Sleep(300);
 
             return new User
-                       {
-                           Id = currentUserId,
-                           Name = Guid.NewGuid().ToString(),
-                           Email = Guid.NewGuid().ToString()
-                       };
+            {
+                Id = currentUserId,
+                Name = Guid.NewGuid().ToString(),
+                Email = Guid.NewGuid().ToString()
+            };
+        }
+
+        public Task<User> GetUserAsync(int currentUserId)
+        {
+            return Task.Delay(300)
+                .ContinueWith(t => new User
+                {
+                    Id = currentUserId,
+                    Name = Guid.NewGuid().ToString(),
+                    Email = Guid.NewGuid().ToString()
+                });
         }
     }
 

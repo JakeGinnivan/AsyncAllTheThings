@@ -13,18 +13,25 @@ namespace ConsoleApplication1
 
         static void Main()
         {
+            SendEmails("http://localhost:7269/Home/SendEmail");
+            SendEmails("http://localhost:7269/Home/SendEmailAsync");
+            Console.Read();
+        }
+
+        private static void SendEmails(string syncUrl)
+        {
+            CountdownEvent.Reset();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             for (var i = 0; i < Iterations; i++)
             {
-                var webRequest = WebRequest.Create("http://localhost:7269/Home/SendEmail");
+                var webRequest = WebRequest.Create(syncUrl);
                 webRequest.BeginGetResponse(DownloadComplete, webRequest);
             }
 
             CountdownEvent.Wait();
             stopwatch.Stop();
             Console.WriteLine("Elapsed time: {0}.{1} seconds", stopwatch.Elapsed.Seconds, stopwatch.Elapsed.Milliseconds);
-            Console.Read();
         }
 
         private static void DownloadComplete(IAsyncResult ar)
@@ -34,7 +41,8 @@ namespace ConsoleApplication1
             try
             {
                 var response = webRequest.EndGetResponse(ar);
-                Console.WriteLine(new StreamReader(response.GetResponseStream()).ReadToEnd());
+                var readToEnd = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                //Console.WriteLine(readToEnd);
             }
             catch (Exception ex)
             {
