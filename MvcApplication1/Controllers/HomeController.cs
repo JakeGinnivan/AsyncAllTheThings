@@ -28,26 +28,13 @@ namespace MvcApplication1.Controllers
             return Content(Guid.NewGuid().ToString());
         }
 
-        public Task<ActionResult> SendEmailAsync()
+        public async Task<ActionResult> SendEmailAsync()
         {
-            var completionSource = new TaskCompletionSource<ActionResult>();
+            var user = await userService.GetCurrentUserAsync();
 
-            userService
-                .GetCurrentUserAsync()
-                .ContinueWith(task =>
-                {
-                    var result = task.Result;
+            await userService.SendEmailAsync(user);
 
-                    userService
-                        .SendEmailAsync(result)
-                        .ContinueWith(t =>
-                        {
-                            var contentResult = Content(Guid.NewGuid().ToString());
-                            completionSource.SetResult(contentResult);
-                        });
-                });
-
-            return completionSource.Task;
+            return Content(Guid.NewGuid().ToString());
         }
     }
 
