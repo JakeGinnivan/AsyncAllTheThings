@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using Newtonsoft.Json;
 
@@ -8,6 +10,8 @@ namespace WpfApplication1
 {
     public partial class MainWindow
     {
+        private CancellationTokenSource cancellationToken;
+
         public MainWindow()
         {
             Artists = new ObservableCollection<Artist>();
@@ -17,13 +21,22 @@ namespace WpfApplication1
 
         private async void GetArtists(object sender, RoutedEventArgs e)
         {
-            getArtists.IsEnabled = false;
+            if (cancellationToken != null)
+            {
+                cancellationToken.Cancel();
+                getArtists.IsEnabled = false;
+                return;
+            }
+            getArtists.Content = "Cancel";
+            Artists.Clear();
 
             try
             {
+                cancellationToken = new CancellationTokenSource();
+
                 var wc = new AsyncWebClient();
                 var address = new Uri("http://ws.audioscrobbler.com/2.0/?method=chart.gethypedartists&api_key=b25b959554ed76058ac220b7b2e0a026&format=json");
-                var result = await wc.GetStringAsync(address);
+                var result = await wc.GetStringAsync(address, cancellationToken.Token);
 
                 var wrapper = JsonConvert.DeserializeObject<Wrapper>(result);
 
@@ -32,9 +45,15 @@ namespace WpfApplication1
                     Artists.Add(artist);
                 }
             }
+            catch (TaskCanceledException)
+            {
+                MessageBox.Show("Cancelled");
+            }
             finally
             {
-                getArtists.IsEnabled = true;                
+                getArtists.Content = "Get Artists";
+                cancellationToken = null;
+                getArtists.IsEnabled = true;
             }
         }
 
