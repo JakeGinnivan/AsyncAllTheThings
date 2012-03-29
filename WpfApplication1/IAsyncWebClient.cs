@@ -16,6 +16,15 @@ namespace WpfApplication1
             Uri uri,
             CancellationToken cancellationToken,
             IProgress<ProgressChangedEventArgs> progressChanged = null);
+
+        Task<byte[]> GetDataAsync(
+            Uri uri,
+            IProgress<ProgressChangedEventArgs> progressChanged = null);
+
+        Task<byte[]> GetDataAsync(
+            Uri uri,
+            CancellationToken cancellationToken,
+            IProgress<ProgressChangedEventArgs> progressChanged = null);
     }
 
     public class AsyncWebClient : IAsyncWebClient

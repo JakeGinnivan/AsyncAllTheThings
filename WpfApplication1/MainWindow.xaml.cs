@@ -37,21 +37,8 @@ namespace WpfApplication1
             try
             {
                 cancellationToken = new CancellationTokenSource();
-
                 var wc = new AsyncWebClient();
-                var address = new Uri("http://ws.audioscrobbler.com/2.0/?method=chart.gethypedartists&api_key=b25b959554ed76058ac220b7b2e0a026&format=json");
-                var result = await wc.GetStringAsync(address, cancellationToken.Token);
-
-                var wrapper = JsonConvert.DeserializeObject<Wrapper>(result);
-
-                foreach (var artist in wrapper.Artists.artist)
-                {
-                    var imageUrl = artist.image.Single(i => i.size == "small").text;
-                    var imageData = await wc.GetDataAsync(new Uri(imageUrl));
-                    artist.ArtistImage = GetBitmapImage(imageData);
-
-                    Artists.Add(artist);
-                }
+                await GetArtistsAsync(wc, cancellationToken.Token, new Progress<Artist>(a=>Artists.Add(a)));
             }
             catch (TaskCanceledException)
             {
@@ -62,6 +49,25 @@ namespace WpfApplication1
                 getArtists.Content = "Get Artists";
                 cancellationToken = null;
                 getArtists.IsEnabled = true;
+            }
+        }
+
+        public static async Task GetArtistsAsync(IAsyncWebClient wc, CancellationToken cancellation, IProgress<Artist> artistAvailable)
+        {
+            var address =
+                new Uri(
+                    "http://ws.audioscrobbler.com/2.0/?method=chart.gethypedartists&api_key=b25b959554ed76058ac220b7b2e0a026&format=json");
+            var result = await wc.GetStringAsync(address, cancellation);
+
+            var wrapper = JsonConvert.DeserializeObject<Wrapper>(result);
+
+            foreach (var artist in wrapper.Artists.artist)
+            {
+                var imageUrl = artist.image.Single(i => i.size == "small").text;
+                var imageData = await wc.GetDataAsync(new Uri(imageUrl));
+                artist.ArtistImage = GetBitmapImage(imageData);
+
+                artistAvailable.Report(artist);
             }
         }
 
