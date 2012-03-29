@@ -30,10 +30,24 @@ namespace MvcApplication1.Controllers
 
         public Task<ActionResult> SendEmailAsync()
         {
-            return userService
+            var completionSource = new TaskCompletionSource<ActionResult>();
+
+            userService
                 .GetCurrentUserAsync()
-                .ContinueWith(task => userService.SendEmail(task.Result))
-                .ContinueWith<ActionResult>(task => Content(Guid.NewGuid().ToString()));
+                .ContinueWith(task =>
+                {
+                    var result = task.Result;
+
+                    userService
+                        .SendEmailAsync(result)
+                        .ContinueWith(t =>
+                        {
+                            var contentResult = Content(Guid.NewGuid().ToString());
+                            completionSource.SetResult(contentResult);
+                        });
+                });
+
+            return completionSource.Task;
         }
     }
 
@@ -42,6 +56,7 @@ namespace MvcApplication1.Controllers
         User GetCurrentUser();
         void SendEmail(User user);
         Task<User> GetCurrentUserAsync();
+        Task SendEmailAsync(User user);
     }
 
     class UserService : IUserService
@@ -68,6 +83,11 @@ namespace MvcApplication1.Controllers
         public void SendEmail(User user)
         {
             Thread.Sleep(200);
+        }
+
+        public Task SendEmailAsync(User user)
+        {
+            return Task.Delay(200);
         }
     }
 
