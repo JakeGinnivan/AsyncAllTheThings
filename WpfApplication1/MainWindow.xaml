@@ -23,6 +23,13 @@
                                     DisplayMemberBinding="{Binding name}" />
                     <GridViewColumn Header="url"
                                     DisplayMemberBinding="{Binding url}" />
+                    <GridViewColumn Header="image">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding ArtistImage}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>

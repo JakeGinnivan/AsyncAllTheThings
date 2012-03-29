@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using Newtonsoft.Json;
 
 namespace WpfApplication1
@@ -42,6 +46,10 @@ namespace WpfApplication1
 
                 foreach (var artist in wrapper.Artists.artist)
                 {
+                    var imageUrl = artist.image.Single(i => i.size == "small").text;
+                    var imageData = await wc.GetDataAsync(new Uri(imageUrl));
+                    artist.ArtistImage = GetBitmapImage(imageData);
+
                     Artists.Add(artist);
                 }
             }
@@ -55,6 +63,21 @@ namespace WpfApplication1
                 cancellationToken = null;
                 getArtists.IsEnabled = true;
             }
+        }
+
+        private static BitmapImage GetBitmapImage(byte[] image)
+        {
+            var ic = new ImageConverter();
+            var img = (System.Drawing.Image)ic.ConvertFrom(image);
+            var bitmap = new Bitmap(img);
+            var ms = new MemoryStream();
+            bitmap.Save(ms, ImageFormat.Png);
+            ms.Position = 0;
+            var bi = new BitmapImage();
+            bi.BeginInit();
+            bi.StreamSource = ms;
+            bi.EndInit();
+            return bi;
         }
 
         public ObservableCollection<Artist> Artists { get; private set; }
@@ -78,6 +101,7 @@ namespace WpfApplication1
         public string url { get; set; }
         public string streamable { get; set; }
         public Image[] image { get; set; }
+        public BitmapImage ArtistImage { get; set; }
 
         public string LargeImage
         {
