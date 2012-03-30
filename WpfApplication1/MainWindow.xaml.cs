@@ -38,7 +38,7 @@ namespace WpfApplication1
             {
                 cancellationToken = new CancellationTokenSource();
                 var wc = new AsyncWebClient();
-                await GetArtistsAsync(wc, cancellationToken.Token, new Progress<Artist>(a=>Artists.Add(a)));
+                await GetArtistsAsync(wc, cancellationToken.Token, new Progress<Artist>(a=>Artists.Add(a)), GetBitmapImage);
             }
             catch (TaskCanceledException)
             {
@@ -52,7 +52,11 @@ namespace WpfApplication1
             }
         }
 
-        public static async Task GetArtistsAsync(IAsyncWebClient wc, CancellationToken cancellation, IProgress<Artist> artistAvailable)
+        public static async Task GetArtistsAsync(
+            IAsyncWebClient wc, 
+            CancellationToken cancellation, 
+            IProgress<Artist> artistAvailable, 
+            Func<byte[], BitmapImage> imageConverter)
         {
             var address =
                 new Uri(
@@ -65,7 +69,7 @@ namespace WpfApplication1
             {
                 var imageUrl = artist.image.Single(i => i.size == "small").text;
                 var imageData = await wc.GetDataAsync(new Uri(imageUrl));
-                artist.ArtistImage = GetBitmapImage(imageData);
+                artist.ArtistImage = imageConverter(imageData);
 
                 artistAvailable.Report(artist);
             }

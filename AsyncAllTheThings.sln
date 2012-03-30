@@ -7,12 +7,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcApplication1", "MvcAppli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication1", "ConsoleApplication1\ConsoleApplication1.csproj", "{596CEA93-23F8-440B-973C-CBF73374F40A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary1", "ClassLibrary1\ClassLibrary1.csproj", "{4758657D-553C-49D8-84E9-A437B934AFA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4758657D-553C-49D8-84E9-A437B934AFA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4758657D-553C-49D8-84E9-A437B934AFA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4758657D-553C-49D8-84E9-A437B934AFA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4758657D-553C-49D8-84E9-A437B934AFA8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{579B3EDA-8282-4CAA-AB96-0C82A1C250FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{579B3EDA-8282-4CAA-AB96-0C82A1C250FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{579B3EDA-8282-4CAA-AB96-0C82A1C250FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
